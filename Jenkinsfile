@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        CC = 'gcc'
+        CXX = 'g++'   
+    }
+
     stages {
         stage('Build') {
             steps {
