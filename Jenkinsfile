@@ -6,6 +6,7 @@ pipeline {
             steps {
                 echo 'Building..'
                 sh "printenv"
+                echo "this is build_number ${env.BUILD_NUMBER}"
             }
         }
         stage('Test') {
