@@ -7,6 +7,11 @@ pipeline {
             defaultValue: 'sample-web-app',
             description: 'Project name'
         )
+        string(
+            name: 'GITHUB_REPO',
+            defaultValue: 'sample_web_app',
+            description: 'GitHub repository name as it appears in the URL'
+        )
     }
 
     stages {
@@ -21,11 +26,11 @@ pipeline {
                 ]) {
                     script {
                         def owner = "Rithwikrk"
-                        def repo = params.PROJECT_NAME
+                        def repo = params.GITHUB_REPO ?: 'sample_web_app'
 
                         def response = sh(
                             script: """
-                                curl -s -u \$GITHUB_USER:\$GITHUB_PAT \
+                                curl -sS -u \"\$GITHUB_USER:\$GITHUB_PAT\" \
                                 https://api.github.com/repos/${owner}/${repo}/branches?per_page=100
                             """,
                             returnStdout: true
