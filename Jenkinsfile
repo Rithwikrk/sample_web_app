@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label 'linux'
+    }
 
     stages {
         stage('Static Code Analysis') {
