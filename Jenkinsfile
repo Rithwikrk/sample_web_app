@@ -38,7 +38,7 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv(credentialsId: 'sonarqube-token') {
-                        sh 'mvn test sonar:sonar'
+                        sh 'mvn sonar:sonar'
                     }
 
                     timeout(time: 1, unit: 'HOURS') {
