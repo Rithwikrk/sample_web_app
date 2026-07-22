@@ -58,6 +58,14 @@ pipeline {
                 }
             }
         }
+        stage('docker build') {
+            steps {
+                script {
+                    echo "Building Docker image..."
+                    sh "docker build -t myapp:${Docker_tag} ."
+                }
+            }
+        }
 
     }
 
