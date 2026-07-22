@@ -12,6 +12,9 @@ pipeline {
                             echo 'Validating commit message...'
 
                             sh 'chmod +x scripts/check_commit.sh'
+                            catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                                sh './scripts/check_commit.sh commit_msg.txt'
+                            }
                             sh './scripts/check_commit.sh commit_msg.txt'
                         }
                     }
@@ -47,6 +50,15 @@ pipeline {
                 }
             }
         }
+        stage('Build & Test') {
+            steps {
+                script {
+                    echo "Building the application..."
+                    sh "mvn clean install"
+                }
+            }
+        }
+
     }
 
     post {
