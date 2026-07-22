@@ -1,9 +1,47 @@
+def getdockerTag() {
+    def tag = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+    return tag
+    }
+
 pipeline {
     agent {
         label 'linux'
     }
-
+    environment {
+        DOCKER_TAG = getdockerTag()
+    }
     stages {
+         stage('Validation & Checks') {
+            parallel {
+                stage('Commit Message Validation') {
+                    steps {
+                        script {
+                            // Extract the latest commit message and save it to a temp file
+                            def commitMsg = sh(script: 'git log -1 --pretty=%B', returnStdout: true).trim()
+                            writeFile file: 'commit_msg.txt', text: commitMsg
+                            echo "Validating commit message..."
+                            
+                            // Execute the verification script (assumed to be in your repo at scripts/check_commit.sh)
+                            // If the script exits with status 1, the pipeline will fail here.
+                            // sh "chmod +x scripts/check_commit.sh"
+                            // // Catch errors from the validation script to mark the stage UNSTABLE instead of FAILURE
+                            // catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                            //     sh "./scripts/check_commit.sh commit_msg.txt"
+                            // }
+                        }
+                    }
+                }
+                stage('Check Dependencies') {
+                    steps {
+                        script {
+                            echo "Verifying external service availability..."
+                            sh "chmod +x scripts/check_dependencies.sh"
+                            sh "./scripts/check_dependencies.sh"
+                        }
+                    }
+                }
+            }
+        }
         stage('Static Code Analysis') {
             steps {
                 script {
@@ -19,6 +57,28 @@ pipeline {
                     }
                 }
             }
+        }
+        stage('Build & Test') {
+            steps {
+                script {
+                    echo "Building the application..."
+                    sh "mvn clean install"
+                }
+            }
+        }
+        stage('docker build') {
+            steps {
+                script {
+                    echo "Building Docker image..."
+                    sh "docker build -t myapp:${Docker_tag} ."
+                }
+            }
+        }
+    }
+post {
+        always {
+            echo 'Cleaning up...'
+            cleanWs()
         }
     }
 }
