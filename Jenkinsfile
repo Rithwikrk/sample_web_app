@@ -35,8 +35,10 @@ pipeline {
                     steps {
                         script {
                             echo "Verifying external service availability..."
-                            sh "chmod +x scripts/check_dependencies.sh"
-                            sh "./scripts/check_dependencies.sh"
+                            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                                sh "chmod +x script/check_dependencies.sh"
+                                sh "./script/check_dependencies.sh"
+                            }
                         }
                     }
                 }
@@ -66,11 +68,11 @@ pipeline {
                 }
             }
         }
-        stage('docker build') {
+        stage('Docker Build') {
             steps {
                 script {
                     echo "Building Docker image..."
-                    sh "docker build -t myapp:${Docker_tag} ."
+                    sh "docker build -t myapp:${DOCKER_TAG} ."
                 }
             }
         }

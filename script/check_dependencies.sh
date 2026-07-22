@@ -1,5 +1,14 @@
 #!/bin/bash
 
+set -o pipefail
+set -u
+
+# Check prerequisites
+if ! command -v curl >/dev/null 2>&1; then
+    echo "ERROR: 'curl' is required but not installed or not in PATH."
+    exit 2
+fi
+
 # Define your tools and their URLs in an associative array
 declare -A TOOLS=(
     ["SonarQube"]="http://13.206.186.122:9000/"
@@ -9,33 +18,33 @@ declare -A TOOLS=(
 )
 
 # Timeout in seconds for each request
-TIMEOUT=5
+TIMEOUT=${TIMEOUT:-5}
+# Maximum time curl may take (timeout + buffer)
+MAX_TIME=$((TIMEOUT + 5))
 FAILED_TOOLS=0
 
 echo "========================================="
-echo "Checking Dependent Tools Status..."
+echo "Checking dependent tools status..."
 echo "========================================="
 
 for TOOL in "${!TOOLS[@]}"; do
     URL="${TOOLS[$TOOL]}"
-    echo -n "Checking $TOOL ($URL)... "
+    printf "Checking %s (%s)... " "$TOOL" "$URL"
 
-    # Perform a curl request fetching only the HTTP response code
-    # --silent: hide progress bar
-    # --head: fetch headers only (faster)
-    # --connect-timeout: don't hang forever if the server is completely down
-    # --output /dev/null: ignore the actual body output
-    # -w "%{http_code}": print only the numeric status code
-    STATUS_CODE=$(curl --write-out "%{http_code}" \
-                       --silent \
-                       --head \
-                       --connect-timeout $TIMEOUT \
-                       --output /dev/null \
-                       "$URL")
+    # Use curl to get HTTP status code. Follow redirects (-L), show errors (-S),
+    # set connect timeout and overall max time. Output body to /dev/null.
+    STATUS_CODE=$(curl -sS -L -o /dev/null -w "%{http_code}" \
+                  --connect-timeout "$TIMEOUT" --max-time "$MAX_TIME" "$URL") || STATUS_CODE="000"
 
-    # A successful web service usually returns a 200 OK, 
-    # but some login walls/dashboards might redirect (301/302) or require auth (401)
-    if [[ "$STATUS_CODE" -ge 200 && "$STATUS_CODE" -lt 400 ]] || [[ "$STATUS_CODE" -eq 401 ]]; then
+    # If curl failed to connect it may return 000
+    if [[ "$STATUS_CODE" == "000" ]]; then
+        echo "❌ UNREACHABLE (no response)"
+        ((FAILED_TOOLS++))
+        continue
+    fi
+
+    # Treat 2xx and 3xx as acceptable; 401 is reported as reachable though requires auth
+    if [[ "$STATUS_CODE" =~ ^2[0-9][0-9]$ ]] || [[ "$STATUS_CODE" =~ ^3[0-9][0-9]$ ]] || [[ "$STATUS_CODE" == "401" ]]; then
         echo "✅ ONLINE (HTTP $STATUS_CODE)"
     else
         echo "❌ DOWN or UNREACHABLE (HTTP status: $STATUS_CODE)"
@@ -44,10 +53,10 @@ for TOOL in "${!TOOLS[@]}"; do
 done
 
 echo "========================================="
-if [ $FAILED_TOOLS -eq 0 ]; then
-    echo "🎉 All dependent tools are up and running smoothly!"
+if [ "$FAILED_TOOLS" -eq 0 ]; then
+    echo "All dependent tools are up and running."
     exit 0
 else
-    echo "⚠️  Warning: $FAILED_TOOLS tool(s) failed the health check."
+    echo "Warning: $FAILED_TOOLS tool(s) failed the health check."
     exit 1
 fi
