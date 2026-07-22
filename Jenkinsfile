@@ -1,5 +1,13 @@
+def getDockerTag(){
+    def tag = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+    return tag
+}
+
 pipeline {
     agent { label 'linux' }
+
+     environment {
+        Docker_tag = getDockerTag()
 
     stages {
         stage('Validation & Checks') {
