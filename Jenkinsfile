@@ -15,7 +15,6 @@ pipeline {
                             catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
                                 sh './scripts/check_commit.sh commit_msg.txt'
                             }
-                            sh './scripts/check_commit.sh commit_msg.txt'
                         }
                     }
                 }
@@ -50,23 +49,24 @@ pipeline {
                 }
             }
         }
+
         stage('Build & Test') {
             steps {
                 script {
-                    echo "Building the application..."
-                    sh "mvn clean install"
-                }
-            }
-        }
-        stage('docker build') {
-            steps {
-                script {
-                    echo "Building Docker image..."
-                    sh "docker build -t myapp:${Docker_tag} ."
+                    echo 'Building the application...'
+                    sh 'MAVEN_OPTS="--add-opens java.base/java.util=ALL-UNNAMED" mvn clean install'
                 }
             }
         }
 
+        stage('Docker Build') {
+            steps {
+                script {
+                    echo 'Building Docker image...'
+                    sh "docker build -t myapp:${DOCKER_TAG} ."
+                }
+            }
+        }
     }
 
     post {
