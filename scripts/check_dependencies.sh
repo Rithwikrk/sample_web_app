@@ -2,7 +2,7 @@
 
 # Define your tools and their URLs in an associative array
 declare -A TOOLS=(
-    ["SonarQube"]="http://13.206.186.122:9000/"
+    ["SonarQube"]="http://13.232.5.68:9000/"
     # Add other tools here as needed, for example:
     # ["Nexus"]="http://13.206.186.122:8081/"
     # ["Artifactory"]="http://13.206.186.122:8082/"
