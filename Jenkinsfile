@@ -22,7 +22,7 @@ pipeline {
 
                             sh 'chmod +x scripts/check_commit.sh'
                             catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-                                sh './scripts/check_commit.sh commit_msg.txt'
+                                sh './script/check_commit.sh commit_msg.txt'
                             }
                         }
                     }
