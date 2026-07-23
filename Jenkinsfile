@@ -5,6 +5,10 @@ def getDockerTag() {
 
 pipeline {
     agent { label 'linux' }
+    
+    tools {
+        maven 'Maven 3' // Ensure this matches your configured tool name in Manage Jenkins > Tools
+    }
 
     environment {
         DOCKER_TAG = getDockerTag()
