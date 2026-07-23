@@ -78,7 +78,7 @@ pipeline {
         stage('Docker Build') {
             steps {
                 script {
-                    echo 'Building Docker image...'
+                    echo 'Building Docker images...'
                     sh "docker build -t myapp:${DOCKER_TAG} ."
                 }
             }
