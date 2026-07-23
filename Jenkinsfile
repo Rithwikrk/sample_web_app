@@ -20,7 +20,7 @@ pipeline {
                             writeFile file: 'commit_msg.txt', text: commitMsg
                             echo 'Validating commit message...'
 
-                            sh 'chmod +x scripts/check_commit.sh'
+                            sh 'chmod +x script/check_commit.sh'
                             catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
                                 sh './script/check_commit.sh commit_msg.txt'
                             }
