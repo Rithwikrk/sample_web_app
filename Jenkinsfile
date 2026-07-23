@@ -43,6 +43,9 @@ pipeline {
         }
 
         stage('Static Code Analysis') {
+            tools {
+                maven 'Maven 3' // Ensure this matches the exact name in Manage Jenkins > Tools
+            }
             steps {
                 script {
                     withSonarQubeEnv(credentialsId: 'sonarqube-token') {
