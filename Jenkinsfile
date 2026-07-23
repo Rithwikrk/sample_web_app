@@ -20,9 +20,9 @@ pipeline {
                             writeFile file: 'commit_msg.txt', text: commitMsg
                             echo 'Validating commit message...'
 
-                            sh 'chmod +x script/check_commit.sh'
+                            sh 'chmod +x scripts/check_commit.sh'
                             catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-                                sh './script/check_commit.sh commit_msg.txt'
+                                sh './scripts/check_commit.sh commit_msg.txt'
                             }
                         }
                     }
@@ -33,8 +33,8 @@ pipeline {
                         script {
                             echo 'Verifying external service availability...'
                             catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                                sh 'chmod +x script/check_dependencies.sh'
-                                sh './script/check_dependencies.sh'
+                                sh 'chmod +x scripts/check_dependencies.sh'
+                                sh './scripts/check_dependencies.sh'
                             }
                         }
                     }
