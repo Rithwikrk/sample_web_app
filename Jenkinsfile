@@ -1,6 +1,6 @@
 pipeline {
     agent { label 'linux' }
-    
+
     tools {
         maven 'Maven 3'
     }
@@ -21,6 +21,7 @@ pipeline {
                         }
                     }
                 }
+
                 stage('Check Dependencies') {
                     steps {
                         script {
@@ -36,15 +37,14 @@ pipeline {
         }
 
         stage('Static Code Analysis') {
-    steps {
-        script {
-            echo 'Skipping SonarQube analysis for now...'
-            // withSonarQubeEnv('sonarqube') {
-            //     sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'
-            // }
-        }
-    }
-}
+            steps {
+                script {
+                    echo 'Skipping SonarQube analysis for now...'
+                    // withSonarQubeEnv('sonarqube') {
+                    //     sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'
+                    // }
+                }
+            }
         }
 
         stage('Build & Test') {
