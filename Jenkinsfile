@@ -2,15 +2,18 @@ def getDockerTag() {
     def tag = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
     return tag
 }
+
 pipeline {
     agent { label 'linux' }
-    
+
     tools {
         maven 'Maven 3' // Ensure this matches your configured tool name in Manage Jenkins > Tools
     }
+
     environment {
         DOCKER_TAG = getDockerTag()
     }
+
     stages {
         stage('Validation & Checks') {
             parallel {
@@ -27,6 +30,7 @@ pipeline {
                         }
                     }
                 }
+
                 stage('Check Dependencies') {
                     steps {
                         script {
@@ -40,6 +44,7 @@ pipeline {
                 }
             }
         }
+
         stage('Static Code Analysis') {
             tools {
                 maven 'Maven 3' // Ensure this matches the exact name in Manage Jenkins > Tools
@@ -58,6 +63,7 @@ pipeline {
                 }
             }
         }
+
         stage('Build & Test') {
             steps {
                 script {
@@ -66,15 +72,18 @@ pipeline {
                 }
             }
         }
+
         stage('Docker Build') {
             steps {
                 script {
-                    echo 'Building Docker images...'
-                    sh "docker build -t myapp:${DOCKER_TAG} ."
+                    def dockerTag = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    echo "Building Docker image with tag: ${dockerTag}"
+                    sh "docker build -t myapp:${dockerTag} ."
                 }
             }
         }
     }
+
     post {
         always {
             echo 'Cleaning up workspace...'
