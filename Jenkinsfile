@@ -1,17 +1,8 @@
-def getDockerTag() {
-    def tag = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-    return tag
-}
-
 pipeline {
     agent { label 'linux' }
-
+    
     tools {
-        maven 'Maven 3' // Ensure this matches your configured tool name in Manage Jenkins > Tools
-    }
-
-    environment {
-        DOCKER_TAG = getDockerTag()
+        maven 'Maven 3'
     }
 
     stages {
@@ -30,7 +21,6 @@ pipeline {
                         }
                     }
                 }
-
                 stage('Check Dependencies') {
                     steps {
                         script {
@@ -47,7 +37,7 @@ pipeline {
 
         stage('Static Code Analysis') {
             tools {
-                maven 'Maven 3' // Ensure this matches the exact name in Manage Jenkins > Tools
+                maven 'Maven 3'
             }
             steps {
                 script {
@@ -74,12 +64,6 @@ pipeline {
         }
 
         stage('Docker Build') {
-            agent {
-                docker {
-                    image 'docker:latest'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
             steps {
                 script {
                     def dockerTag = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
