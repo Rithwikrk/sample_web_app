@@ -6,7 +6,7 @@ pipeline {
        
     stage('Get Remote Branches via API') {
     steps {
-        // Use the ID you just created in the Jenkins UI
+        // Use the ID you just created in the Jenkins UI.
         withCredentials([usernamePassword(credentialsId: 'github-api-token', passwordVariable: 'GITHUB_PAT', usernameVariable: 'GITHUB_USER')]) {
             script {
                 def owner = "Rithwikrk"
