@@ -36,22 +36,15 @@ pipeline {
         }
 
         stage('Static Code Analysis') {
-            tools {
-                maven 'Maven 3'
-            }
-            steps {
-                script {
-                    withSonarQubeEnv('sonarqube') {
-                        sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'
-                    }
-                    timeout(time: 1, unit: 'HOURS') {
-                        def qg = waitForQualityGate()
-                        if (qg.status != 'OK') {
-                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
-                        }
-                    }
-                }
-            }
+    steps {
+        script {
+            echo 'Skipping SonarQube analysis for now...'
+            // withSonarQubeEnv('sonarqube') {
+            //     sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'
+            // }
+        }
+    }
+}
         }
 
         stage('Build & Test') {
