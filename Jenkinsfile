@@ -5,8 +5,8 @@ pipeline {
         stage('Static Code Analysis') {
             steps {
                 script {
-                    withSonarQubeEnv(credentialsId: 'sonarqube-token-v1') {
-                        sh 'mvn sonar:sonar'
+                    withSonarQubeEnv('sonarqube') {
+                        sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'
                     }
                 }
             }
