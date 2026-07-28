@@ -74,6 +74,12 @@ pipeline {
         }
 
         stage('Docker Build') {
+            agent {
+                docker {
+                    image 'docker:latest'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
             steps {
                 script {
                     def dockerTag = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
